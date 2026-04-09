@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🍩 Donut System ULTRA</title>
+<title>🍩 Donut System MASTER</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
@@ -20,46 +20,24 @@ body{
     align-items:center;
     height:100vh;
 }
-
-.login-box{
+.box{
     background: rgba(255,255,255,0.2);
     padding:30px;
     border-radius:15px;
     text-align:center;
 }
 
-input{
-    padding:10px;
-    margin:5px;
-    border-radius:8px;
-    border:none;
-}
-
-/* BOTÃO */
-.btn{
-    background:white;
-    color:#ff4dc4;
-    border:none;
-    padding:10px;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-/* SISTEMA */
+/* APP */
 #app{display:none;}
 
-header{
-    text-align:center;
-    padding:20px;
-    font-size:28px;
-}
+header{text-align:center;padding:20px;font-size:28px;}
 
 nav{
     display:flex;
     justify-content:center;
+    flex-wrap:wrap;
     gap:10px;
 }
-
 nav button{
     padding:10px;
     border:none;
@@ -67,17 +45,36 @@ nav button{
     cursor:pointer;
 }
 
+/* SEÇÕES */
 .section{display:none;padding:20px;}
 .active{display:block;}
 
+/* CARD */
 .card{
     background: rgba(255,255,255,0.2);
     padding:15px;
     margin:10px;
     border-radius:15px;
+    width:200px;
+}
+.grid{display:flex;flex-wrap:wrap;}
+
+.btn{
+    background:white;
+    color:#ff4dc4;
+    border:none;
+    padding:8px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:5px;
 }
 
-.grid{display:flex;flex-wrap:wrap;}
+input{
+    padding:8px;
+    border-radius:8px;
+    border:none;
+    margin:5px;
+}
 
 </style>
 </head>
@@ -86,47 +83,76 @@ nav button{
 
 <!-- LOGIN -->
 <div id="login">
-    <div class="login-box">
-        <h2>🔐 Login</h2>
-        <input id="user" placeholder="Usuário"><br>
-        <input id="pass" type="password" placeholder="Senha"><br>
-        <button class="btn" onclick="logar()">Entrar</button>
-        <p id="erro"></p>
-    </div>
+<div class="box">
+<h2>🔐 Login</h2>
+<input id="user" placeholder="Usuário"><br>
+<input id="pass" type="password" placeholder="Senha"><br>
+<button class="btn" onclick="logar()">Entrar</button>
+<p id="erro"></p>
+</div>
 </div>
 
-<!-- SISTEMA -->
+<!-- APP -->
 <div id="app">
 
-<header>🍩 Donut System ULTRA</header>
+<header>🍩 Donut System MASTER</header>
 
 <nav>
 <button onclick="show('cardapio')">Cardápio</button>
 <button onclick="show('carrinho')">Carrinho</button>
+<button onclick="show('pedidos')">Pedidos</button>
+<button onclick="show('clientes')">Clientes</button>
+<button onclick="show('estoque')">Estoque</button>
+<button onclick="show('relatorio')">Relatório</button>
 <button onclick="show('pagamento')">Pagamento</button>
 </nav>
 
 <!-- CARDÁPIO -->
 <div id="cardapio" class="section active">
 <h2>🍔 Cardápio</h2>
+<input id="busca" placeholder="Buscar..." onkeyup="buscar()">
 <div class="grid" id="menu"></div>
 </div>
 
 <!-- CARRINHO -->
 <div id="carrinho" class="section">
 <h2>🛒 Carrinho</h2>
-<ul id="lista"></ul>
+<ul id="listaCarrinho"></ul>
 <p id="total"></p>
-<button class="btn" onclick="show('pagamento')">Ir pagar</button>
+</div>
+
+<!-- PEDIDOS -->
+<div id="pedidos" class="section">
+<h2>🧾 Pedidos</h2>
+<ul id="listaPedidos"></ul>
+<button class="btn" onclick="limparPedidos()">Limpar</button>
+</div>
+
+<!-- CLIENTES -->
+<div id="clientes" class="section">
+<h2>👥 Clientes</h2>
+<input id="clienteNome" placeholder="Nome">
+<button class="btn" onclick="addCliente()">Adicionar</button>
+<ul id="clientesLista"></ul>
+</div>
+
+<!-- ESTOQUE -->
+<div id="estoque" class="section">
+<h2>📦 Estoque</h2>
+<ul id="estoqueLista"></ul>
+</div>
+
+<!-- RELATÓRIO -->
+<div id="relatorio" class="section">
+<h2>📊 Relatório</h2>
+<p id="totalVendas"></p>
 </div>
 
 <!-- PAGAMENTO -->
 <div id="pagamento" class="section">
 <h2>💳 Pagamento</h2>
-
 <button class="btn" onclick="pix()">Pix</button>
 <button class="btn" onclick="cartao()">Cartão</button>
-
 <div id="areaPagamento"></div>
 </div>
 
@@ -136,102 +162,186 @@ nav button{
 
 // LOGIN
 function logar(){
-    let u = document.getElementById("user").value;
-    let p = document.getElementById("pass").value;
+    let u=document.getElementById("user").value;
+    let p=document.getElementById("pass").value;
 
-    if(u === "admin" && p === "123"){
-        document.getElementById("login").style.display="none";
-        document.getElementById("app").style.display="block";
-    } else {
-        document.getElementById("erro").textContent="❌ Login inválido";
+    if(u==="admin" && p==="123"){
+        login.style.display="none";
+        app.style.display="block";
+    }else{
+        erro.textContent="❌ inválido";
     }
 }
 
 // PRODUTOS
-const produtos = [
-{nome:"X-Burguer",preco:15},
-{nome:"Pizza",preco:30},
-{nome:"Batata",preco:10},
-{nome:"Donut 🍩",preco:8},
-{nome:"Milkshake",preco:12}
+const produtos=[
+{name:"X-Burguer",preco:15},
+{name:"X-Bacon",preco:20},
+{name:"Pizza",preco:30},
+{name:"Batata",preco:10},
+{name:"Donut 🍩",preco:8},
+{name:"Milkshake",preco:12},
+{name:"Açaí",preco:14},
+{name:"Coxinha",preco:6},
+{name:"Pastel",preco:7}
 ];
 
-let carrinho = [];
+let carrinho=[];
+let pedidos=[];
+let clientes=[];
+let totalVendas=0;
+
+// ESTOQUE
+let estoque={};
+produtos.forEach(p=>estoque[p.name]=10);
 
 // MENU
-function render(){
-    let menu = document.getElementById("menu");
-    produtos.forEach(p=>{
-        let div = document.createElement("div");
+function render(lista){
+    let menu=document.getElementById("menu");
+    menu.innerHTML="";
+    lista.forEach(p=>{
+        let div=document.createElement("div");
         div.className="card";
         div.innerHTML=`
-        <h3>${p.nome}</h3>
+        <h3>${p.name}</h3>
         <p>R$${p.preco}</p>
-        <button class="btn" onclick="add('${p.nome}',${p.preco})">Adicionar</button>
+        <button class="btn" onclick="add('${p.name}',${p.preco})">Adicionar</button>
         `;
         menu.appendChild(div);
     });
 }
 
+// BUSCA
+function buscar(){
+    let t=busca.value.toLowerCase();
+    render(produtos.filter(p=>p.name.toLowerCase().includes(t)));
+}
+
 // ADD
 function add(nome,preco){
-    carrinho.push({nome,preco});
-    renderCarrinho();
+    if(estoque[nome]>0){
+        carrinho.push({nome,preco});
+        estoque[nome]--;
+        renderCarrinho();
+        renderEstoque();
+    }else alert("Sem estoque!");
 }
 
 // CARRINHO
 function renderCarrinho(){
-    let lista = document.getElementById("lista");
-    lista.innerHTML="";
+    listaCarrinho.innerHTML="";
     let total=0;
 
-    carrinho.forEach(i=>{
+    carrinho.forEach((i,idx)=>{
         total+=i.preco;
         let li=document.createElement("li");
-        li.textContent=i.nome+" - R$"+i.preco;
-        lista.appendChild(li);
+        li.innerHTML=`${i.nome} - R$${i.preco}
+        <button onclick="remover(${idx})">❌</button>`;
+        listaCarrinho.appendChild(li);
     });
 
-    document.getElementById("total").textContent="Total: R$ "+total;
+    totalEl = document.getElementById("total");
+    totalEl.textContent="Total: R$ "+total;
 }
 
-// TROCAR
+// REMOVER
+function remover(i){
+    estoque[carrinho[i].nome]++;
+    carrinho.splice(i,1);
+    renderCarrinho();
+    renderEstoque();
+}
+
+// FINALIZAR PEDIDO
+function finalizarPedido(){
+    if(carrinho.length==0) return alert("Carrinho vazio");
+
+    let total=carrinho.reduce((s,i)=>s+i.preco,0);
+    pedidos.push([...carrinho]);
+    totalVendas+=total;
+    carrinho=[];
+    renderCarrinho();
+    renderPedidos();
+    atualizarRelatorio();
+}
+
+// PEDIDOS
+function renderPedidos(){
+    listaPedidos.innerHTML="";
+    pedidos.forEach((p,i)=>{
+        let li=document.createElement("li");
+        li.textContent="Pedido "+(i+1)+" ("+p.length+" itens)";
+        listaPedidos.appendChild(li);
+    });
+}
+
+function limparPedidos(){
+    pedidos=[];
+    renderPedidos();
+}
+
+// CLIENTES
+function addCliente(){
+    if(clienteNome.value){
+        clientes.push(clienteNome.value);
+        clienteNome.value="";
+        renderClientes();
+    }
+}
+
+function renderClientes(){
+    clientesLista.innerHTML="";
+    clientes.forEach(c=>{
+        let li=document.createElement("li");
+        li.textContent=c;
+        clientesLista.appendChild(li);
+    });
+}
+
+// ESTOQUE
+function renderEstoque(){
+    estoqueLista.innerHTML="";
+    for(let i in estoque){
+        let li=document.createElement("li");
+        li.textContent=i+": "+estoque[i];
+        estoqueLista.appendChild(li);
+    }
+}
+
+// RELATÓRIO
+function atualizarRelatorio(){
+    totalVendasEl.textContent="💰 Total: R$ "+totalVendas;
+}
+
+// PAGAMENTO
+function pix(){
+    areaPagamento.innerHTML=`
+    <p>Chave: donut@pix.com</p>
+    <button class="btn" onclick="pagar()">Confirmar</button>`;
+}
+
+function cartao(){
+    areaPagamento.innerHTML=`
+    <input placeholder="Cartão"><br>
+    <input placeholder="Nome"><br>
+    <button class="btn" onclick="pagar()">Pagar</button>`;
+}
+
+function pagar(){
+    finalizarPedido();
+    alert("Pagamento aprovado!");
+    show('cardapio');
+}
+
+// TROCAR TELA
 function show(id){
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-// PIX
-function pix(){
-    let area = document.getElementById("areaPagamento");
-    area.innerHTML=`
-        <p>📱 Escaneie o QR Code (fake)</p>
-        <p>🔑 Chave Pix: donut@system.com</p>
-        <button class="btn" onclick="finalizar()">Confirmar Pagamento</button>
-    `;
-}
-
-// CARTÃO
-function cartao(){
-    let area = document.getElementById("areaPagamento");
-    area.innerHTML=`
-        <input placeholder="Número do cartão"><br>
-        <input placeholder="Nome"><br>
-        <input placeholder="CVV"><br>
-        <button class="btn" onclick="finalizar()">Pagar</button>
-    `;
-}
-
-// FINALIZAR
-function finalizar(){
-    alert("✅ Pagamento aprovado!");
-    carrinho=[];
-    renderCarrinho();
-    show('cardapio');
-}
-
 // INIT
-render();
+render(produtos);
+renderEstoque();
 
 </script>
 
