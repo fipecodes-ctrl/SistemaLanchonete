@@ -3,93 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lanchonete Donut System 🍩</title>
+<title>🍩 Donut System PRO</title>
 
 <style>
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
 }
 
-/* FUNDO GRADIENTE + DONUTS */
 body {
     background: linear-gradient(135deg, #4e6cff, #ff6ec7);
     color: white;
-    min-height: 100vh;
 }
 
 /* HEADER */
 header {
     text-align: center;
     padding: 20px;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: bold;
 }
 
-/* MENU */
+/* NAV */
 nav {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 nav button {
     background: white;
     color: #6a00ff;
     border: none;
-    padding: 10px 15px;
+    padding: 10px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.3s;
 }
 
-nav button:hover {
-    background: #ffd6f7;
-}
-
-/* CONTEÚDO */
+/* SEÇÕES */
 .section {
     display: none;
     padding: 20px;
 }
-
-.active {
-    display: block;
-}
-
-/* CARDS */
-.card {
-    background: rgba(255,255,255,0.15);
-    padding: 15px;
-    margin: 10px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-}
-
-/* LISTA */
-ul {
-    list-style: none;
-}
-
-/* BOTÕES */
-.btn {
-    background: #fff;
-    color: #ff4dc4;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-}
+.active { display: block; }
 
 /* GRID */
 .grid {
     display: flex;
     flex-wrap: wrap;
+}
+
+/* CARD */
+.card {
+    background: rgba(255,255,255,0.15);
+    padding: 15px;
+    margin: 10px;
+    border-radius: 15px;
+    width: 200px;
+    transition: 0.3s;
+}
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* BOTÃO */
+.btn {
+    background: white;
+    color: #ff4dc4;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 5px;
 }
 
 /* INPUT */
@@ -100,166 +89,249 @@ input {
     margin: 5px;
 }
 
-/* FOOTER */
-footer {
-    text-align: center;
-    margin-top: 20px;
-    padding: 10px;
-    opacity: 0.7;
+/* LISTAS */
+ul { list-style: none; }
+
+/* TOTAL */
+.total {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+/* ANIMAÇÃO */
+.fade {
+    animation: fadeIn 0.4s;
+}
+@keyframes fadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
 }
 </style>
 </head>
 
 <body>
 
-<header>🍩 Sistema da Lanchonete</header>
+<header>🍩 Donut System PRO</header>
 
 <nav>
-    <button onclick="showSection('cardapio')">Cardápio</button>
-    <button onclick="showSection('pedidos')">Pedidos</button>
-    <button onclick="showSection('clientes')">Clientes</button>
-    <button onclick="showSection('estoque')">Estoque</button>
+    <button onclick="show('cardapio')">Cardápio</button>
+    <button onclick="show('carrinho')">Carrinho</button>
+    <button onclick="show('pedidos')">Pedidos</button>
+    <button onclick="show('clientes')">Clientes</button>
+    <button onclick="show('estoque')">Estoque</button>
+    <button onclick="show('relatorio')">Relatório</button>
 </nav>
 
 <!-- CARDÁPIO -->
-<div id="cardapio" class="section active">
+<div id="cardapio" class="section active fade">
     <h2>📋 Cardápio</h2>
-    <div class="grid" id="menuList"></div>
+    <input type="text" id="busca" placeholder="Buscar..." onkeyup="buscar()">
+    <div class="grid" id="menu"></div>
+</div>
+
+<!-- CARRINHO -->
+<div id="carrinho" class="section fade">
+    <h2>🛒 Carrinho</h2>
+    <ul id="listaCarrinho"></ul>
+    <div class="total" id="total"></div>
+    <button class="btn" onclick="finalizar()">Finalizar Pedido</button>
 </div>
 
 <!-- PEDIDOS -->
-<div id="pedidos" class="section">
+<div id="pedidos" class="section fade">
     <h2>🧾 Pedidos</h2>
     <ul id="listaPedidos"></ul>
+    <button class="btn" onclick="limparPedidos()">Limpar</button>
 </div>
 
 <!-- CLIENTES -->
-<div id="clientes" class="section">
+<div id="clientes" class="section fade">
     <h2>👥 Clientes</h2>
-    <input type="text" id="nomeCliente" placeholder="Nome do cliente">
+    <input id="clienteNome" placeholder="Nome">
     <button class="btn" onclick="addCliente()">Adicionar</button>
-    <ul id="listaClientes"></ul>
+    <ul id="clientesLista"></ul>
 </div>
 
 <!-- ESTOQUE -->
-<div id="estoque" class="section">
+<div id="estoque" class="section fade">
     <h2>📦 Estoque</h2>
-    <ul id="listaEstoque"></ul>
+    <ul id="estoqueLista"></ul>
 </div>
 
-<footer>🍩 Donut System - Sistema de Lanchonete</footer>
+<!-- RELATÓRIO -->
+<div id="relatorio" class="section fade">
+    <h2>📊 Relatório</h2>
+    <p id="totalVendas"></p>
+</div>
 
 <script>
-// DADOS
-const menu = [
-    {nome: "Hambúrguer", preco: 15},
-    {nome: "Batata Frita", preco: 10},
-    {nome: "Refrigerante", preco: 7},
-    {nome: "Milkshake", preco: 12},
-    {nome: "Donut 🍩", preco: 8}
+
+// CARDÁPIO GRANDE
+const produtos = [
+{nome:"X-Burguer", preco:15},
+{nome:"X-Salada", preco:17},
+{nome:"X-Bacon", preco:20},
+{nome:"Pizza Calabresa", preco:30},
+{nome:"Pizza Frango", preco:32},
+{nome:"Batata Frita", preco:10},
+{nome:"Batata com Cheddar", preco:15},
+{nome:"Refrigerante", preco:7},
+{nome:"Suco Natural", preco:9},
+{nome:"Milkshake", preco:12},
+{nome:"Donut Chocolate 🍩", preco:8},
+{nome:"Donut Morango 🍩", preco:8},
+{nome:"Combo Burguer + Batata", preco:25},
+{nome:"Combo Pizza + Refri", preco:35},
+{nome:"Açaí", preco:14},
+{nome:"Hot Dog", preco:12},
+{nome:"Coxinha", preco:6},
+{nome:"Pastel", preco:7}
 ];
 
+let carrinho = [];
 let pedidos = [];
 let clientes = [];
-let estoque = {
-    "Hambúrguer": 10,
-    "Batata Frita": 15,
-    "Refrigerante": 20,
-    "Milkshake": 8,
-    "Donut 🍩": 25
-};
+let totalVendas = 0;
 
-// TROCAR SEÇÃO
-function showSection(id){
-    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+// ESTOQUE
+let estoque = {};
+produtos.forEach(p => estoque[p.nome] = 10);
+
+// TROCAR TELA
+function show(id){
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-// RENDER CARDÁPIO
-function renderMenu(){
-    const menuList = document.getElementById("menuList");
-    menuList.innerHTML = "";
-
-    menu.forEach(item => {
+// RENDER MENU
+function render(lista){
+    const menu = document.getElementById("menu");
+    menu.innerHTML = "";
+    lista.forEach(p=>{
         const div = document.createElement("div");
-        div.className = "card";
-
+        div.className = "card fade";
         div.innerHTML = `
-            <h3>${item.nome}</h3>
-            <p>R$ ${item.preco}</p>
-            <button class="btn" onclick="fazerPedido('${item.nome}')">Pedir</button>
+            <h3>${p.nome}</h3>
+            <p>R$ ${p.preco}</p>
+            <button class="btn" onclick="addCarrinho('${p.nome}', ${p.preco})">Adicionar</button>
         `;
-
-        menuList.appendChild(div);
+        menu.appendChild(div);
     });
 }
 
-// PEDIDO
-function fazerPedido(nome){
-    if(estoque[nome] > 0){
-        pedidos.push(nome);
-        estoque[nome]--;
-        renderPedidos();
-        renderEstoque();
-    } else {
-        alert("❌ Sem estoque!");
-    }
+// BUSCA
+function buscar(){
+    const texto = document.getElementById("busca").value.toLowerCase();
+    const filtrado = produtos.filter(p => p.nome.toLowerCase().includes(texto));
+    render(filtrado);
 }
 
-// LISTAR PEDIDOS
+// CARRINHO
+function addCarrinho(nome, preco){
+    if(estoque[nome] > 0){
+        carrinho.push({nome, preco});
+        estoque[nome]--;
+        renderCarrinho();
+        renderEstoque();
+    } else alert("Sem estoque!");
+}
+
+function renderCarrinho(){
+    const lista = document.getElementById("listaCarrinho");
+    lista.innerHTML = "";
+    let total = 0;
+
+    carrinho.forEach((item,i)=>{
+        total += item.preco;
+        const li = document.createElement("li");
+        li.innerHTML = `${item.nome} - R$${item.preco} 
+        <button onclick="removerCarrinho(${i})">❌</button>`;
+        lista.appendChild(li);
+    });
+
+    document.getElementById("total").textContent = "Total: R$ " + total;
+}
+
+// REMOVER
+function removerCarrinho(i){
+    const item = carrinho[i];
+    estoque[item.nome]++;
+    carrinho.splice(i,1);
+    renderCarrinho();
+    renderEstoque();
+}
+
+// FINALIZAR
+function finalizar(){
+    if(carrinho.length === 0) return alert("Carrinho vazio!");
+
+    let total = carrinho.reduce((s,i)=>s+i.preco,0);
+    pedidos.push([...carrinho]);
+    totalVendas += total;
+    carrinho = [];
+
+    renderCarrinho();
+    renderPedidos();
+    atualizarRelatorio();
+}
+
+// PEDIDOS
 function renderPedidos(){
     const lista = document.getElementById("listaPedidos");
     lista.innerHTML = "";
 
-    pedidos.forEach((p, i) => {
+    pedidos.forEach((pedido,i)=>{
         const li = document.createElement("li");
-        li.innerHTML = `${p} <button onclick="removerPedido(${i})">❌</button>`;
+        li.textContent = `Pedido ${i+1} (${pedido.length} itens)`;
         lista.appendChild(li);
     });
 }
 
-// REMOVER PEDIDO
-function removerPedido(i){
-    pedidos.splice(i,1);
+function limparPedidos(){
+    pedidos = [];
     renderPedidos();
 }
 
 // CLIENTES
 function addCliente(){
-    const nome = document.getElementById("nomeCliente").value;
+    const nome = document.getElementById("clienteNome").value;
     if(nome){
         clientes.push(nome);
-        document.getElementById("nomeCliente").value = "";
+        document.getElementById("clienteNome").value="";
         renderClientes();
     }
 }
 
 function renderClientes(){
-    const lista = document.getElementById("listaClientes");
-    lista.innerHTML = "";
-
-    clientes.forEach(c => {
+    const lista = document.getElementById("clientesLista");
+    lista.innerHTML="";
+    clientes.forEach(c=>{
         const li = document.createElement("li");
-        li.textContent = c;
+        li.textContent=c;
         lista.appendChild(li);
     });
 }
 
 // ESTOQUE
 function renderEstoque(){
-    const lista = document.getElementById("listaEstoque");
-    lista.innerHTML = "";
-
+    const lista = document.getElementById("estoqueLista");
+    lista.innerHTML="";
     for(let item in estoque){
         const li = document.createElement("li");
-        li.textContent = `${item}: ${estoque[item]}`;
+        li.textContent=`${item}: ${estoque[item]}`;
         lista.appendChild(li);
     }
 }
 
-// INICIAR
-renderMenu();
+// RELATÓRIO
+function atualizarRelatorio(){
+    document.getElementById("totalVendas").textContent = "💰 Total vendido: R$ " + totalVendas;
+}
+
+// INIT
+render(produtos);
 renderEstoque();
+
 </script>
 
 </body>
