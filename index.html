@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lanchonete Donut System 🍩</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* FUNDO GRADIENTE + DONUTS */
+body {
+    background: linear-gradient(135deg, #4e6cff, #ff6ec7);
+    color: white;
+    min-height: 100vh;
+}
+
+/* HEADER */
+header {
+    text-align: center;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* MENU */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+nav button {
+    background: white;
+    color: #6a00ff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav button:hover {
+    background: #ffd6f7;
+}
+
+/* CONTEÚDO */
+.section {
+    display: none;
+    padding: 20px;
+}
+
+.active {
+    display: block;
+}
+
+/* CARDS */
+.card {
+    background: rgba(255,255,255,0.15);
+    padding: 15px;
+    margin: 10px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+/* LISTA */
+ul {
+    list-style: none;
+}
+
+/* BOTÕES */
+.btn {
+    background: #fff;
+    color: #ff4dc4;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* GRID */
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* INPUT */
+input {
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    margin: 5px;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    opacity: 0.7;
+}
+</style>
+</head>
+
+<body>
+
+<header>🍩 Sistema da Lanchonete</header>
+
+<nav>
+    <button onclick="showSection('cardapio')">Cardápio</button>
+    <button onclick="showSection('pedidos')">Pedidos</button>
+    <button onclick="showSection('clientes')">Clientes</button>
+    <button onclick="showSection('estoque')">Estoque</button>
+</nav>
+
+<!-- CARDÁPIO -->
+<div id="cardapio" class="section active">
+    <h2>📋 Cardápio</h2>
+    <div class="grid" id="menuList"></div>
+</div>
+
+<!-- PEDIDOS -->
+<div id="pedidos" class="section">
+    <h2>🧾 Pedidos</h2>
+    <ul id="listaPedidos"></ul>
+</div>
+
+<!-- CLIENTES -->
+<div id="clientes" class="section">
+    <h2>👥 Clientes</h2>
+    <input type="text" id="nomeCliente" placeholder="Nome do cliente">
+    <button class="btn" onclick="addCliente()">Adicionar</button>
+    <ul id="listaClientes"></ul>
+</div>
+
+<!-- ESTOQUE -->
+<div id="estoque" class="section">
+    <h2>📦 Estoque</h2>
+    <ul id="listaEstoque"></ul>
+</div>
+
+<footer>🍩 Donut System - Sistema de Lanchonete</footer>
+
+<script>
+// DADOS
+const menu = [
+    {nome: "Hambúrguer", preco: 15},
+    {nome: "Batata Frita", preco: 10},
+    {nome: "Refrigerante", preco: 7},
+    {nome: "Milkshake", preco: 12},
+    {nome: "Donut 🍩", preco: 8}
+];
+
+let pedidos = [];
+let clientes = [];
+let estoque = {
+    "Hambúrguer": 10,
+    "Batata Frita": 15,
+    "Refrigerante": 20,
+    "Milkshake": 8,
+    "Donut 🍩": 25
+};
+
+// TROCAR SEÇÃO
+function showSection(id){
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+// RENDER CARDÁPIO
+function renderMenu(){
+    const menuList = document.getElementById("menuList");
+    menuList.innerHTML = "";
+
+    menu.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            <h3>${item.nome}</h3>
+            <p>R$ ${item.preco}</p>
+            <button class="btn" onclick="fazerPedido('${item.nome}')">Pedir</button>
+        `;
+
+        menuList.appendChild(div);
+    });
+}
+
+// PEDIDO
+function fazerPedido(nome){
+    if(estoque[nome] > 0){
+        pedidos.push(nome);
+        estoque[nome]--;
+        renderPedidos();
+        renderEstoque();
+    } else {
+        alert("❌ Sem estoque!");
+    }
+}
+
+// LISTAR PEDIDOS
+function renderPedidos(){
+    const lista = document.getElementById("listaPedidos");
+    lista.innerHTML = "";
+
+    pedidos.forEach((p, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `${p} <button onclick="removerPedido(${i})">❌</button>`;
+        lista.appendChild(li);
+    });
+}
+
+// REMOVER PEDIDO
+function removerPedido(i){
+    pedidos.splice(i,1);
+    renderPedidos();
+}
+
+// CLIENTES
+function addCliente(){
+    const nome = document.getElementById("nomeCliente").value;
+    if(nome){
+        clientes.push(nome);
+        document.getElementById("nomeCliente").value = "";
+        renderClientes();
+    }
+}
+
+function renderClientes(){
+    const lista = document.getElementById("listaClientes");
+    lista.innerHTML = "";
+
+    clientes.forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = c;
+        lista.appendChild(li);
+    });
+}
+
+// ESTOQUE
+function renderEstoque(){
+    const lista = document.getElementById("listaEstoque");
+    lista.innerHTML = "";
+
+    for(let item in estoque){
+        const li = document.createElement("li");
+        li.textContent = `${item}: ${estoque[item]}`;
+        lista.appendChild(li);
+    }
+}
+
+// INICIAR
+renderMenu();
+renderEstoque();
+</script>
+
+</body>
+</html>
